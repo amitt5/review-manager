@@ -1,62 +1,24 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export default function Home() {
-  const [tasks, setTasks] = useState([
-    { id: 1, title: 'Learn Next.js', completed: false },
-    { id: 2, title: 'Build a Task Manager', completed: false },
-  ]);
+  const [tasks, setTasks] = useState<any[]>([]);
 
-  const [newTask, setNewTask] = useState('');
-  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
-  const [editedTaskTitle, setEditedTaskTitle] = useState('');
+  // Fetch tasks from Supabase
+  useEffect(() => {
+    fetchTasks();
+  }, []);
 
-  // Handle adding a new task
-  const addTask = () => {
-    if (newTask.trim() === '') return;
+  const fetchTasks = async () => {
+    const { data, error } = await supabase.from('tasks').select('*').order('inserted_at', { ascending: false });
 
-    const newTaskObj = {
-      id: tasks.length + 1,
-      title: newTask,
-      completed: false,
-    };
-
-    setTasks([...tasks, newTaskObj]);
-    setNewTask('');
-  };
-
-  // Handle marking a task as complete or incomplete
-  const toggleComplete = (taskId: number) => {
-    setTasks(
-      tasks.map((task) =>
-        task.id === taskId ? { ...task, completed: !task.completed } : task
-      )
-    );
-  };
-
-  // Handle deleting a task
-  const deleteTask = (taskId: number) => {
-    setTasks(tasks.filter((task) => task.id !== taskId));
-  };
-
-  // Handle editing a task
-  const startEditing = (taskId: number, currentTitle: string) => {
-    setEditingTaskId(taskId);
-    setEditedTaskTitle(currentTitle);
-  };
-
-  const saveEditedTask = () => {
-    if (editedTaskTitle.trim() === '') return;
-
-    setTasks(
-      tasks.map((task) =>
-        task.id === editingTaskId ? { ...task, title: editedTaskTitle } : task
-      )
-    );
-
-    setEditingTaskId(null);
-    setEditedTaskTitle('');
+    if (error) {
+      console.error('Error fetching tasks:', error.message);
+    } else {
+      setTasks(data);
+    }
   };
 
   return (
@@ -64,74 +26,17 @@ export default function Home() {
       <div className="max-w-3xl mx-auto bg-white p-6 shadow rounded-lg">
         <h1 className="text-2xl font-bold mb-4">Task Manager</h1>
 
-        {/* Task Form */}
-        <div className="mb-6">
-          <input
-            type="text"
-            placeholder="Enter a new task"
-            value={newTask}
-            onChange={(e) => setNewTask(e.target.value)}
-            className="w-full p-2 border rounded-md"
-          />
-          <button
-            onClick={addTask}
-            className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-          >
-            Add Task
-          </button>
-        </div>
+        <button
+          onClick={fetchTasks}
+          className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+        >
+          Refresh Tasks
+        </button>
 
-        {/* Task List */}
         <ul>
           {tasks.map((task) => (
-            <li
-              key={task.id}
-              className="flex justify-between items-center bg-gray-50 p-2 mb-2 rounded"
-            >
-              {editingTaskId === task.id ? (
-                <div className="flex">
-                  <input
-                    type="text"
-                    value={editedTaskTitle}
-                    onChange={(e) => setEditedTaskTitle(e.target.value)}
-                    className="w-full p-2 border rounded-md"
-                  />
-                  <button
-                    onClick={saveEditedTask}
-                    className="ml-2 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
-                  >
-                    Save
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <span
-                    className={task.completed ? 'line-through text-gray-500' : ''}
-                  >
-                    {task.title}
-                  </span>
-                  <div>
-                    <button
-                      onClick={() => toggleComplete(task.id)}
-                      className="text-green-500 mr-2"
-                    >
-                      {task.completed ? 'Undo' : 'Complete'}
-                    </button>
-                    <button
-                      onClick={() => deleteTask(task.id)}
-                      className="text-red-500"
-                    >
-                      Delete
-                    </button>
-                    <button
-                      onClick={() => startEditing(task.id, task.title)}
-                      className="text-blue-500 ml-2"
-                    >
-                      Edit
-                    </button>
-                  </div>
-                </>
-              )}
+            <li key={task.id} className="flex justify-between items-center bg-gray-50 p-2 mb-2 rounded">
+              <span>{task.title}</span>
             </li>
           ))}
         </ul>
