@@ -24,6 +24,20 @@ export default function Home() {
     setNewTask('');
   };
 
+  // Handle marking a task as complete or incomplete
+  const toggleComplete = (taskId: number) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === taskId ? { ...task, completed: !task.completed } : task
+      )
+    );
+  };
+
+  // Handle deleting a task
+  const deleteTask = (taskId: number) => {
+    setTasks(tasks.filter((task) => task.id !== taskId));
+  };
+
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-3xl mx-auto bg-white p-6 shadow rounded-lg">
@@ -57,8 +71,18 @@ export default function Home() {
                 {task.title}
               </span>
               <div>
-                <button className="text-green-500 mr-2">Complete</button>
-                <button className="text-red-500">Delete</button>
+                <button
+                  onClick={() => toggleComplete(task.id)}
+                  className="text-green-500 mr-2"
+                >
+                  {task.completed ? 'Undo' : 'Complete'}
+                </button>
+                <button
+                  onClick={() => deleteTask(task.id)}
+                  className="text-red-500"
+                >
+                  Delete
+                </button>
               </div>
             </li>
           ))}
