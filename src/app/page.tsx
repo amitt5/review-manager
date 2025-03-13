@@ -28,13 +28,13 @@ export default function Home() {
   const addTask = async () => {
     if (newTask.trim() === '') return;
 
-    const { data, error } = await supabase.from('tasks').insert([{ title: newTask }]);
+    const { data, error } = await supabase.from('tasks').insert([{ title: newTask, completed: false }]);
 
     if (error) {
       console.error('Error adding task:', error.message);
     } else {
       setNewTask('');
-      fetchTasks(); // Refresh task list
+      fetchTasks();
     }
   };
 
@@ -44,6 +44,17 @@ export default function Home() {
 
     if (error) {
       console.error('Error deleting task:', error.message);
+    } else {
+      fetchTasks();
+    }
+  };
+
+  // Mark task as complete/incomplete
+  const toggleTaskCompletion = async (id: string, completed: boolean) => {
+    const { error } = await supabase.from('tasks').update({ completed }).eq('id', id);
+
+    if (error) {
+      console.error('Error updating task status:', error.message);
     } else {
       fetchTasks();
     }
@@ -102,32 +113,49 @@ export default function Home() {
         {/* Task List */}
         <ul>
           {tasks.map((task) => (
-            <li key={task.id} className="flex justify-between items-center bg-gray-50 p-2 mb-2 rounded">
-              {editingTaskId === task.id ? (
-                <div className="flex gap-2 flex-1">
+            <li
+              key={task.id}
+              className={`flex justify-between items-center p-2 mb-2 rounded ${
+                task.completed ? 'bg-green-100' : 'bg-gray-50'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={task.completed}
+                  onChange={() => toggleTaskCompletion(task.id, !task.completed)}
+                />
+                {editingTaskId === task.id ? (
                   <input
                     type="text"
                     value={editTaskTitle}
                     onChange={(e) => setEditTaskTitle(e.target.value)}
                     className="flex-1 p-2 border rounded-md"
                   />
-                  <button
-                    onClick={() => updateTask(task.id)}
-                    className="bg-yellow-500 text-white px-4 py-2 rounded-md hover:bg-yellow-600"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={() => setEditingTaskId(null)}
-                    className="bg-gray-400 text-white px-4 py-2 rounded-md hover:bg-gray-500"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <span>{task.title}</span>
-                  <div className="flex gap-2">
+                ) : (
+                  <span className={task.completed ? 'line-through text-gray-500' : ''}>
+                    {task.title}
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-2">
+                {editingTaskId === task.id ? (
+                  <>
+                    <button
+                      onClick={() => updateTask(task.id)}
+                      className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setEditingTaskId(null)}
+                      className="bg-gray-400 text-white px-3 py-1 rounded-md hover:bg-gray-500"
+                    >
+                      Cancel
+                    </button>
+                  </>
+                ) : (
+                  <>
                     <button
                       onClick={() => startEditing(task.id, task.title)}
                       className="bg-yellow-500 text-white px-3 py-1 rounded-md hover:bg-yellow-600"
@@ -140,9 +168,9 @@ export default function Home() {
                     >
                       Delete
                     </button>
-                  </div>
-                </>
-              )}
+                  </>
+                )}
+              </div>
             </li>
           ))}
         </ul>
