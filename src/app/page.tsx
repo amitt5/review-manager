@@ -9,6 +9,8 @@ export default function Home() {
   ]);
 
   const [newTask, setNewTask] = useState('');
+  const [editingTaskId, setEditingTaskId] = useState<number | null>(null);
+  const [editedTaskTitle, setEditedTaskTitle] = useState('');
 
   // Handle adding a new task
   const addTask = () => {
@@ -36,6 +38,25 @@ export default function Home() {
   // Handle deleting a task
   const deleteTask = (taskId: number) => {
     setTasks(tasks.filter((task) => task.id !== taskId));
+  };
+
+  // Handle editing a task
+  const startEditing = (taskId: number, currentTitle: string) => {
+    setEditingTaskId(taskId);
+    setEditedTaskTitle(currentTitle);
+  };
+
+  const saveEditedTask = () => {
+    if (editedTaskTitle.trim() === '') return;
+
+    setTasks(
+      tasks.map((task) =>
+        task.id === editingTaskId ? { ...task, title: editedTaskTitle } : task
+      )
+    );
+
+    setEditingTaskId(null);
+    setEditedTaskTitle('');
   };
 
   return (
@@ -67,23 +88,50 @@ export default function Home() {
               key={task.id}
               className="flex justify-between items-center bg-gray-50 p-2 mb-2 rounded"
             >
-              <span className={task.completed ? 'line-through text-gray-500' : ''}>
-                {task.title}
-              </span>
-              <div>
-                <button
-                  onClick={() => toggleComplete(task.id)}
-                  className="text-green-500 mr-2"
-                >
-                  {task.completed ? 'Undo' : 'Complete'}
-                </button>
-                <button
-                  onClick={() => deleteTask(task.id)}
-                  className="text-red-500"
-                >
-                  Delete
-                </button>
-              </div>
+              {editingTaskId === task.id ? (
+                <div className="flex">
+                  <input
+                    type="text"
+                    value={editedTaskTitle}
+                    onChange={(e) => setEditedTaskTitle(e.target.value)}
+                    className="w-full p-2 border rounded-md"
+                  />
+                  <button
+                    onClick={saveEditedTask}
+                    className="ml-2 bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
+                  >
+                    Save
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <span
+                    className={task.completed ? 'line-through text-gray-500' : ''}
+                  >
+                    {task.title}
+                  </span>
+                  <div>
+                    <button
+                      onClick={() => toggleComplete(task.id)}
+                      className="text-green-500 mr-2"
+                    >
+                      {task.completed ? 'Undo' : 'Complete'}
+                    </button>
+                    <button
+                      onClick={() => deleteTask(task.id)}
+                      className="text-red-500"
+                    >
+                      Delete
+                    </button>
+                    <button
+                      onClick={() => startEditing(task.id, task.title)}
+                      className="text-blue-500 ml-2"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                </>
+              )}
             </li>
           ))}
         </ul>
