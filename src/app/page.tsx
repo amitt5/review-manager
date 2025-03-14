@@ -2,20 +2,40 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const [tasks, setTasks] = useState<any[]>([]);
   const [newTask, setNewTask] = useState('');
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editTaskTitle, setEditTaskTitle] = useState('');
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
-    fetchTasks();
+    // Get user email and ID
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserEmail(session?.user?.email ?? null);
+      setUserId(session?.user?.id ?? null);
+      if (session?.user?.id) {
+        fetchTasks(session.user.id);
+      }
+    });
   }, []);
 
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/auth');
+  };
+
   // Fetch tasks from Supabase
-  const fetchTasks = async () => {
-    const { data, error } = await supabase.from('tasks').select('*').order('inserted_at', { ascending: false });
+  const fetchTasks = async (uid: string) => {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .eq('user_id', uid)
+      .order('inserted_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching tasks:', error.message);
@@ -62,37 +82,55 @@ export default function Home() {
 
   // Add a new task
   const addTask = async () => {
-    if (newTask.trim() === '') return;
+    if (newTask.trim() === '' || !userId) return;
 
-    const { data, error } = await supabase.from('tasks').insert([{ title: newTask, completed: false }]);
+    const { data, error } = await supabase
+      .from('tasks')
+      .insert([{ 
+        title: newTask, 
+        completed: false,
+        user_id: userId 
+      }]);
 
     if (error) {
       console.error('Error adding task:', error.message);
     } else {
       setNewTask('');
-      fetchTasks();
+      fetchTasks(userId);
     }
   };
 
   // Delete a task
   const deleteTask = async (id: string) => {
-    const { error } = await supabase.from('tasks').delete().eq('id', id);
+    if (!userId) return;
+
+    const { error } = await supabase
+      .from('tasks')
+      .delete()
+      .eq('id', id)
+      .eq('user_id', userId);  // Extra security to ensure users can only delete their own tasks
 
     if (error) {
       console.error('Error deleting task:', error.message);
     } else {
-      fetchTasks();
+      fetchTasks(userId);
     }
   };
 
   // Mark task as complete/incomplete
   const toggleTaskCompletion = async (id: string, completed: boolean) => {
-    const { error } = await supabase.from('tasks').update({ completed }).eq('id', id);
+    if (!userId) return;
+
+    const { error } = await supabase
+      .from('tasks')
+      .update({ completed })
+      .eq('id', id)
+      .eq('user_id', userId);  // Extra security
 
     if (error) {
       console.error('Error updating task status:', error.message);
     } else {
-      fetchTasks();
+      fetchTasks(userId);
     }
   };
 
@@ -104,23 +142,38 @@ export default function Home() {
 
   // Update an existing task
   const updateTask = async (id: string) => {
-    if (editTaskTitle.trim() === '') return;
+    if (editTaskTitle.trim() === '' || !userId) return;
 
-    const { error } = await supabase.from('tasks').update({ title: editTaskTitle }).eq('id', id);
+    const { error } = await supabase
+      .from('tasks')
+      .update({ title: editTaskTitle })
+      .eq('id', id)
+      .eq('user_id', userId);  // Extra security
 
     if (error) {
       console.error('Error updating task:', error.message);
     } else {
       setEditingTaskId(null);
       setEditTaskTitle('');
-      fetchTasks();
+      fetchTasks(userId);
     }
   };
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-3xl mx-auto bg-white p-6 shadow rounded-lg">
-        <h1 className="text-2xl font-bold mb-4">Task Manager</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold">Task Manager</h1>
+          <div className="flex items-center gap-4">
+            {userEmail && <span className="text-gray-600">{userEmail}</span>}
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
 
         {/* Add Task */}
         <div className="flex gap-2 mb-4">
@@ -140,7 +193,7 @@ export default function Home() {
         </div>
 
         <button
-          onClick={fetchTasks}
+          onClick={() => userId && fetchTasks(userId)}
           className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 mb-4"
         >
           Refresh Tasks
