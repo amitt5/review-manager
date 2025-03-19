@@ -10,13 +10,18 @@ export default function Home() {
   const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
   const [editTaskTitle, setEditTaskTitle] = useState('');
   const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+  // const [userRole, setUserRole] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
     // Get user email and ID
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('session111', session);
       setUserEmail(session?.user?.email ?? null);
+      setUserName(session?.user?.user_metadata?.full_name ?? null);
+      // setUserRole(session?.user?.user_metadata?.role ?? null);
       setUserId(session?.user?.id ?? null);
       if (session?.user?.id) {
         fetchTasks(session.user.id);
@@ -165,7 +170,8 @@ export default function Home() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Task Manager</h1>
           <div className="flex items-center gap-4">
-            {userEmail && <span className="text-gray-600">{userEmail}</span>}
+            {!userName && userEmail && <span className="text-gray-600">{userEmail}</span>}
+            {userName && <span className="text-gray-600">{userName}</span>}
             <button
               onClick={handleLogout}
               className="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"

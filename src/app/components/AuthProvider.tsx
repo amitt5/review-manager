@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { User } from '@supabase/supabase-js';
-
+import { saveUserRoleToDB, saveUserToDB } from '@/lib/supabaseHelpers';
 const AuthContext = createContext({});
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -21,7 +21,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange( (_event, session) => {
+      if (_event === "SIGNED_IN" && session?.user) {
+        const user = session.user;
+
+        // Save user to the database
+        saveUserToDB(user);
+        saveUserRoleToDB(user);
+      }
       setUser(session?.user ?? null);
       if (!session) {
         router.push('/auth');
