@@ -1,4 +1,17 @@
-"use client";
+"use client"
+import Link from "next/link"
+import { BarChart3, Home, Settings, Star, Zap } from "lucide-react"
+
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+  SidebarProvider,
+} from "@/components/ui/sidebar"
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
