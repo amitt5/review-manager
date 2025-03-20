@@ -49,42 +49,6 @@ export default function Home() {
     }
   };
 
-  // const getTaskHelp = async (taskTitle: string) => {
-  //   try {
-  //     // / Try these console logs:
-  //     const apiKey = String(process.env.OPENAI_API_KEY).trim();
-  //     console.log('Processed key:', apiKey);
-  //     console.log('Processed length:', apiKey.length);
-
-  //     const response = await fetch('https://api.openai.com/v1/chat/completions', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //         'Authorization': `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`
-  //       },
-  //       body: JSON.stringify({
-  //         model: 'gpt-4',
-  //         messages: [
-  //           { role: 'system', content: 'You are an expert productivity assistant.' },
-  //           { role: 'user', content: `Give me some tips on how to complete this task: ${taskTitle}` }
-  //         ]
-  //       })
-  //     });
-  
-  //     const data = await response.json();
-  
-  //     if (data.choices && data.choices.length > 0) {
-  //       alert(`AI Recommendations:\n\n${data.choices[0].message.content}`);
-  //     } else {
-  //       alert('No recommendations found. Try again!');
-  //     }
-  //   } catch (error) {
-  //     console.error('Error fetching help from ChatGPT:', error);
-  //     alert('Failed to get help. Please check your API key or connection.');
-  //   }
-  // };
-  
-
   // Add a new task
   const addTask = async () => {
     if (newTask.trim() === '' || !userId) return;

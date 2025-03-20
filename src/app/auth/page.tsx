@@ -11,7 +11,8 @@ export default function AuthPage() {
     // Check if user is already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        router.push('/'); // Redirect to home if already logged in
+        router.push('/dashboard'); // Redirect to home if already logged in
+        // router.replace('/dashboard'); // Ensure correct redirect
       }
     });
 
@@ -20,7 +21,8 @@ export default function AuthPage() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
-        router.push('/');
+        router.push('/dashboard');
+        // router.replace('/dashboard'); // Ensure correct redirect
       }
     });
 

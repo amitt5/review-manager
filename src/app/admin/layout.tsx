@@ -33,7 +33,7 @@ export default function AdminLayout({
       .single();
 
     if (error || !userRole || userRole.role !== 'admin') {
-      router.push('/'); // Redirect non-admins to home
+      router.push('/dashboard'); // Redirect non-admins to home
       return;
     }
 
