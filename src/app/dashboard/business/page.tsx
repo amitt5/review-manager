@@ -1,4 +1,6 @@
 import { Building2, Link, Star } from "lucide-react"
+import ConnectGoogleBusinessButton from "@/app/components/ConnectGoogleBusinessButton"  // Adjust path if needed
+// import ConnectGoogleBusinessButton from "../../components/ConnectGoogleBusinessButton"  // Adjust path if needed
 
 export default function BusinessPage() {
   return (
@@ -40,12 +42,15 @@ export default function BusinessPage() {
             <p className="text-xs text-gray-400 mt-2">Or connect with Google Business API for automatic setup</p>
           </div>
 
-          <div className="pt-4 border-t border-gray-700">
+          {/* <div className="pt-4 border-t border-gray-700">
             <button className="flex items-center gap-2 bg-[#333333] hover:bg-[#444444] transition-colors px-4 py-2 rounded-md">
               <Building2 className="h-4 w-4" />
               <span>Connect with Google Business</span>
             </button>
-          </div>
+          </div> */}
+           <div className="pt-4 border-t border-gray-700">
+                <ConnectGoogleBusinessButton />
+            </div>
 
           <div className="pt-4 border-t border-gray-700">
             <h3 className="text-lg font-medium mb-4">Review Page Preview</h3>
