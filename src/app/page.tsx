@@ -26,6 +26,8 @@ export default function Home() {
       if (session?.user?.id) {
         fetchTasks(session.user.id);
       }
+    router.push('/dashboard/business');
+
     });
   }, []);
 

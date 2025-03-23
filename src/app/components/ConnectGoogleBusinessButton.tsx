@@ -1,13 +1,23 @@
-// components/ConnectGoogleBusinessButton.tsx
-"use client";
-import { signIn } from "next-auth/react";
+import { supabase } from '@/lib/supabase'; // Adjust the path to your supabase client
+import { useRouter } from 'next/navigation';
 
 export default function ConnectGoogleBusinessButton() {
-  const handleClick = () => {
-    // Trigger the sign-in flow only for Google Business authentication
-    signIn("google", {
-      callbackUrl: "/create-my-business", // You can change this URL to your business page URL
+  const router = useRouter();
+
+  const handleClick = async () => {
+    // Trigger the Supabase Google OAuth flow
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: '/create-my-business', // URL to redirect after authentication
+      },
     });
+
+    if (error) {
+      console.error('Error connecting to Google Business:', error.message);
+    } else {
+      console.log('Successfully initiated Google OAuth flow:', data);
+    }
   };
 
   return (
