@@ -38,7 +38,9 @@ export default function BusinessPage() {
         }
 
         const script = document.createElement("script");
-        script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAHdq8ochmwsT4ZkZ-hAx8feHth19H3vOA&libraries=places&callback=initMap`;
+        const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+        script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initMap`;
+
         script.async = true;
         scriptRef.current = script;
         window.initMap = initMap;
