@@ -26,6 +26,8 @@ declare global {
 
 export default function BusinessPage() {
     const [place, setPlace] = useState<any>(null); 
+    const [reviewLink, setReviewLink] = useState('');
+
     const mapRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const scriptRef = useRef<HTMLScriptElement | null>(null);
@@ -62,6 +64,8 @@ export default function BusinessPage() {
 
     function handleConfirm() {
       console.log("Confirmed place:", place);
+      const link = `https://search.google.com/local/writereview?placeid=${place.place_id}`;
+      setReviewLink(link);
       // You can later lift this up to parent component if you want
     }
     
@@ -124,7 +128,13 @@ export default function BusinessPage() {
                 <div>
                     <label className="block text-sm font-medium mb-2">Google Review Link</label>
                     <div className="flex">
-                        <input type="text" className="flex-1 p-3 bg-[#333333] border border-gray-700 rounded-l-md" placeholder="Paste your Google review link" />
+                    <input
+                          type="text"
+                          className="flex-1 p-3 bg-[#333333] border border-gray-700 rounded-l-md"
+                          placeholder="Paste your Google review link"
+                          value={reviewLink}
+                          onChange={(e) => setReviewLink(e.target.value)}
+                      />
                         <button className="bg-[#333333] border border-l-0 border-gray-700 rounded-r-md px-4 flex items-center">
                             <Link className="h-5 w-5 text-gray-400" />
                         </button>
