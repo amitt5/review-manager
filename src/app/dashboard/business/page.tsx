@@ -2,6 +2,7 @@
 
 import { Link, Star } from "lucide-react"
 import { useEffect, useRef } from "react";
+import { useState } from "react";
 
 // Add type declarations for Google Maps
 declare global {
@@ -24,7 +25,7 @@ declare global {
 }
 
 export default function BusinessPage() {
-
+    const [place, setPlace] = useState<any>(null); 
     const mapRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const infoWindowRef = useRef<HTMLDivElement>(null);
@@ -56,6 +57,10 @@ export default function BusinessPage() {
         }
     }, []);
 
+    function handlePlaceSelected(newPlace: any) {
+      setPlace(newPlace); // equivalent to `this.place = value` in Angular
+  }
+
     // Initialize the map when the script loads
     function initMap() {
         if (!mapRef.current || !inputRef.current || !infoWindowRef.current) return;
@@ -83,33 +88,24 @@ export default function BusinessPage() {
 
         autocomplete.addListener("place_changed", () => {
             infoWindow.close();
-            const place = autocomplete.getPlace();
-            console.log('infoWindowRef.current', place);
-            if (!place.geometry || !place.geometry.location) return;
+            const tempPlace = autocomplete.getPlace();
+            if(tempPlace) {
+              handlePlaceSelected(tempPlace);
+            } else {
+              return;
+            }
+            console.log('infoWindowRef.current', place, tempPlace);
+            if (!tempPlace.geometry || !tempPlace.geometry.location) return;
 
-            map.setCenter(place.geometry.location);
+            map.setCenter(tempPlace.geometry.location);
             map.setZoom(17);
 
             marker.setPlace({
-                placeId: place.place_id,
-                location: place.geometry.location,
+                placeId: tempPlace.place_id,
+                location: tempPlace.geometry.location,
             });
 
             marker.setVisible(true);
-            
-            // Add null checks for DOM elements
-            const infoWindowElement = infoWindowRef.current;
-            if (!infoWindowElement) return;
-            
-            const placeName = infoWindowElement.querySelector("#place-name");
-            const placeId = infoWindowElement.querySelector("#place-id");
-            const placeAddress = infoWindowElement.querySelector("#place-address");
-            
-            if (placeName) placeName.textContent = place.name || '';
-            if (placeId) placeId.textContent = place.place_id || '';
-            if (placeAddress) placeAddress.textContent = place.formatted_address || '';
-            
-            infoWindow.open(map, marker);
         });
     }
 
@@ -143,9 +139,15 @@ export default function BusinessPage() {
                     <input ref={inputRef} className="controls p-3 w-full bg-[#333333] border border-gray-700 rounded-md" type="text" placeholder="Search your business to get Place ID" />
                     <div ref={mapRef} className="h-64 rounded-md" />
                     <div ref={infoWindowRef} className="text-sm text-gray-400 space-y-1">
-                        <div><strong>Place Name:</strong> <span id="place-name" /></div>
-                        <div><strong>Place ID:</strong> <span id="place-id" /></div>
-                        <div><strong>Address:</strong> <span id="place-address" /></div>
+                      {place ? (
+                            <>
+                                <div><strong>Place Name:</strong> {place.name}</div>
+                                <div><strong>Place ID:</strong> {place.place_id}</div>
+                                <div><strong>Address:</strong> {place.formatted_address}</div>
+                            </>
+                        ) : (
+                            <p className="text-gray-500">No place selected yet.</p>
+                        )}
 
                         <div className="mt-4 space-y-2" >
                             <button
