@@ -3,23 +3,54 @@
 import { Link, Star } from "lucide-react"
 import { useEffect, useRef } from "react";
 
+// Add type declarations for Google Maps
+declare global {
+    interface Window {
+        initMap: () => void;
+        google: {
+            maps: {
+                Map: any;
+                places: {
+                    Autocomplete: any;
+                };
+                ControlPosition: {
+                    TOP_LEFT: number;
+                };
+                InfoWindow: any;
+                Marker: any;
+            };
+        };
+    }
+}
+
 export default function BusinessPage() {
 
     const mapRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const infoWindowRef = useRef<HTMLDivElement>(null);
+    const scriptRef = useRef<HTMLScriptElement | null>(null);
 
     // Load Google Maps JS dynamically
     useEffect(() => {
+        // Check if script is already loaded
+        if (document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]')) {
+            return;
+        }
+
         const script = document.createElement("script");
         script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyAHdq8ochmwsT4ZkZ-hAx8feHth19H3vOA&libraries=places&callback=initMap`;
         script.async = true;
+        scriptRef.current = script;
         window.initMap = initMap;
         document.head.appendChild(script);
 
         // Cleanup on unmount
         return () => {
-            delete window.initMap;
+            if (scriptRef.current) {
+                document.head.removeChild(scriptRef.current);
+                scriptRef.current = null;
+            }
+            delete (window as any).initMap;
         }
     }, []);
 
@@ -27,22 +58,22 @@ export default function BusinessPage() {
     function initMap() {
         if (!mapRef.current || !inputRef.current || !infoWindowRef.current) return;
 
-        const map = new google.maps.Map(mapRef.current, {
+        const map = new window.google.maps.Map(mapRef.current, {
             center: { lat: -33.8688, lng: 151.2195 },
             zoom: 13,
         });
 
-        const autocomplete = new google.maps.places.Autocomplete(inputRef.current, {
+        const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
             fields: ["place_id", "geometry", "formatted_address", "name"],
         });
 
         autocomplete.bindTo("bounds", map);
-        map.controls[google.maps.ControlPosition.TOP_LEFT].push(inputRef.current);
+        map.controls[window.google.maps.ControlPosition.TOP_LEFT].push(inputRef.current);
 
-        const infoWindow = new google.maps.InfoWindow();
+        const infoWindow = new window.google.maps.InfoWindow();
         infoWindow.setContent(infoWindowRef.current);
 
-        const marker = new google.maps.Marker({ map });
+        const marker = new window.google.maps.Marker({ map });
 
         marker.addListener("click", () => {
             infoWindow.open(map, marker);
@@ -63,9 +94,19 @@ export default function BusinessPage() {
             });
 
             marker.setVisible(true);
-            infoWindowRef.current.querySelector("#place-name")!.textContent = place.name;
-            infoWindowRef.current.querySelector("#place-id")!.textContent = place.place_id;
-            infoWindowRef.current.querySelector("#place-address")!.textContent = place.formatted_address || "";
+            
+            // Add null checks for DOM elements
+            const infoWindowElement = infoWindowRef.current;
+            if (!infoWindowElement) return;
+            
+            const placeName = infoWindowElement.querySelector("#place-name");
+            const placeId = infoWindowElement.querySelector("#place-id");
+            const placeAddress = infoWindowElement.querySelector("#place-address");
+            
+            if (placeName) placeName.textContent = place.name || '';
+            if (placeId) placeId.textContent = place.place_id || '';
+            if (placeAddress) placeAddress.textContent = place.formatted_address || '';
+            
             infoWindow.open(map, marker);
         });
     }
