@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { Session } from "@supabase/supabase-js";
 import { useRouter } from "next/navigation";
 export default function BusinessPage() {
+    const [loading, setLoading] = useState<boolean>(true);
     const router = useRouter();
     const [session, setSession] = useState<Session | null>(null);  // Track Supabase session
     const [businessData, setBusinessData] = useState<any>(null);
@@ -24,6 +25,8 @@ export default function BusinessPage() {
 
     // Fetch business data when accessToken is available
   useEffect(() => {
+    console.log('session',session);
+
     if (session?.access_token) {
       const fetchBusinessData = async () => {
         try {
@@ -33,8 +36,9 @@ export default function BusinessPage() {
               Authorization: `Bearer ${session.access_token}`, // Use the Supabase access token for Google Business API
             },
           });
-
+          
           const data = await response.json();
+          console.log('session123', data);
           setBusinessData(data); // Store the fetched business data
         } catch (error) {
           console.error("Error fetching Google Business data:", error);
