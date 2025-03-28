@@ -28,7 +28,6 @@ export default function BusinessPage() {
     const [place, setPlace] = useState<any>(null); 
     const mapRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
-    const infoWindowRef = useRef<HTMLDivElement>(null);
     const scriptRef = useRef<HTMLScriptElement | null>(null);
 
     // Load Google Maps JS dynamically
@@ -69,7 +68,7 @@ export default function BusinessPage() {
 
     // Initialize the map when the script loads
     function initMap() {
-        if (!mapRef.current || !inputRef.current || !infoWindowRef.current) return;
+        if (!mapRef.current || !inputRef.current) return;
 
         const map = new window.google.maps.Map(mapRef.current, {
             center: { lat: -33.8688, lng: 151.2195 },
@@ -83,17 +82,11 @@ export default function BusinessPage() {
         autocomplete.bindTo("bounds", map);
         map.controls[window.google.maps.ControlPosition.TOP_LEFT].push(inputRef.current);
 
-        const infoWindow = new window.google.maps.InfoWindow();
-        infoWindow.setContent(infoWindowRef.current);
 
         const marker = new window.google.maps.Marker({ map });
 
-        marker.addListener("click", () => {
-            infoWindow.open(map, marker);
-        });
-
+      
         autocomplete.addListener("place_changed", () => {
-            infoWindow.close();
             const tempPlace = autocomplete.getPlace();
             if(tempPlace) {
               handlePlaceSelected(tempPlace);
@@ -143,7 +136,7 @@ export default function BusinessPage() {
                 <div className="space-y-4">
                     <input ref={inputRef} className="controls p-3 w-full bg-[#333333] border border-gray-700 rounded-md" type="text" placeholder="Search your business to get Place ID" />
                     <div ref={mapRef} className="h-64 rounded-md" />
-                    <div ref={infoWindowRef} className="text-sm text-gray-400 space-y-1">
+                    <div className="text-sm text-gray-400 space-y-1">
                       {place ? (
                             <>
                                 <div><strong>Place Name:</strong> {place.name}</div>
