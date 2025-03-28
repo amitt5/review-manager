@@ -59,7 +59,13 @@ export default function BusinessPage() {
 
     function handlePlaceSelected(newPlace: any) {
       setPlace(newPlace); // equivalent to `this.place = value` in Angular
-  }
+    }
+
+    function handleConfirm() {
+      console.log("Confirmed place:", place);
+      // You can later lift this up to parent component if you want
+    }
+    
 
     // Initialize the map when the script loads
     function initMap() {
@@ -94,7 +100,6 @@ export default function BusinessPage() {
             } else {
               return;
             }
-            console.log('infoWindowRef.current', place, tempPlace);
             if (!tempPlace.geometry || !tempPlace.geometry.location) return;
 
             map.setCenter(tempPlace.geometry.location);
@@ -144,26 +149,20 @@ export default function BusinessPage() {
                                 <div><strong>Place Name:</strong> {place.name}</div>
                                 <div><strong>Place ID:</strong> {place.place_id}</div>
                                 <div><strong>Address:</strong> {place.formatted_address}</div>
+
+                                <div className="mt-4 space-y-2" >
+                                    <button
+                                        onClick={handleConfirm}
+                                        className="w-full bg-yellow-500 hover:bg-yellow-600 transition-colors text-black font-medium px-4 py-2 rounded-md"
+                                    >
+                                        ✅ Confirm this is my business
+                                    </button>
+                                </div>
                             </>
                         ) : (
                             <p className="text-gray-500">No place selected yet.</p>
                         )}
 
-                        <div className="mt-4 space-y-2" >
-                            <button
-                                id="confirm-button"
-                                className="w-full bg-yellow-500 hover:bg-yellow-600 transition-colors text-black font-medium px-4 py-2 rounded-md"
-                            >
-                                ✅ Confirm this is my business
-                            </button>
-
-                            <button
-                                id="search-again-button"
-                                className="w-full bg-[#333333] hover:bg-[#444444] transition-colors text-white font-medium px-4 py-2 rounded-md border border-gray-700"
-                            >
-                                🔄 Search Again
-                            </button>
-                        </div>
                     </div>
 
                 </div>
