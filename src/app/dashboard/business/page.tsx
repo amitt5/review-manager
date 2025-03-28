@@ -146,7 +146,24 @@ export default function BusinessPage() {
                         <div><strong>Place Name:</strong> <span id="place-name" /></div>
                         <div><strong>Place ID:</strong> <span id="place-id" /></div>
                         <div><strong>Address:</strong> <span id="place-address" /></div>
+
+                        <div className="mt-4 space-y-2" >
+                            <button
+                                id="confirm-button"
+                                className="w-full bg-yellow-500 hover:bg-yellow-600 transition-colors text-black font-medium px-4 py-2 rounded-md"
+                            >
+                                ✅ Confirm this is my business
+                            </button>
+
+                            <button
+                                id="search-again-button"
+                                className="w-full bg-[#333333] hover:bg-[#444444] transition-colors text-white font-medium px-4 py-2 rounded-md border border-gray-700"
+                            >
+                                🔄 Search Again
+                            </button>
+                        </div>
                     </div>
+
                 </div>
 
                 <div className="pt-4 border-t border-gray-700">
