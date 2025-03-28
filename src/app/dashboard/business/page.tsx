@@ -1,10 +1,9 @@
 "use client"
 
 import { Link, Star } from "lucide-react"
-import { useEffect, useRef } from "react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react"
 
-// Add type declarations for Google Maps
+// Type declarations for Google Maps API
 declare global {
     interface Window {
         initMap: () => void;
@@ -25,30 +24,25 @@ declare global {
 }
 
 export default function BusinessPage() {
-    const [place, setPlace] = useState<any>(null); 
-    const [reviewLink, setReviewLink] = useState('');
+    const [place, setPlace] = useState<any>(null);
+    const [reviewLink, setReviewLink] = useState("");
 
     const mapRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const scriptRef = useRef<HTMLScriptElement | null>(null);
 
-    // Load Google Maps JS dynamically
+    // Loading Google Maps API dynamically only once
     useEffect(() => {
-        // Check if script is already loaded
-        if (document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]')) {
-            return;
-        }
-
+        if (document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]')) return;
+        
         const script = document.createElement("script");
         const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
         script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initMap`;
-
         script.async = true;
         scriptRef.current = script;
         window.initMap = initMap;
         document.head.appendChild(script);
 
-        // Cleanup on unmount
         return () => {
             if (scriptRef.current) {
                 document.head.removeChild(scriptRef.current);
@@ -58,19 +52,18 @@ export default function BusinessPage() {
         }
     }, []);
 
+    // Handling the place selection
     function handlePlaceSelected(newPlace: any) {
-      setPlace(newPlace); // equivalent to `this.place = value` in Angular
+        setPlace(newPlace);
     }
 
+    // Generate the review link when the business is confirmed
     function handleConfirm() {
-      console.log("Confirmed place:", place);
-      const link = `https://search.google.com/local/writereview?placeid=${place.place_id}`;
-      setReviewLink(link);
-      // You can later lift this up to parent component if you want
+        const link = `https://search.google.com/local/writereview?placeid=${place.place_id}`;
+        setReviewLink(link);
     }
-    
 
-    // Initialize the map when the script loads
+    // Initializing the Google Map with Autocomplete
     function initMap() {
         if (!mapRef.current || !inputRef.current) return;
 
@@ -86,28 +79,18 @@ export default function BusinessPage() {
         autocomplete.bindTo("bounds", map);
         map.controls[window.google.maps.ControlPosition.TOP_LEFT].push(inputRef.current);
 
-
         const marker = new window.google.maps.Marker({ map });
 
-      
+        // Listening for place change and setting map details
         autocomplete.addListener("place_changed", () => {
             const tempPlace = autocomplete.getPlace();
-            if(tempPlace) {
-              handlePlaceSelected(tempPlace);
-            } else {
-              return;
+            if (tempPlace && tempPlace.geometry?.location) {
+                map.setCenter(tempPlace.geometry.location);
+                map.setZoom(17);
+                marker.setPosition(tempPlace.geometry.location);
+                marker.setVisible(true);
+                handlePlaceSelected(tempPlace);
             }
-            if (!tempPlace.geometry || !tempPlace.geometry.location) return;
-
-            map.setCenter(tempPlace.geometry.location);
-            map.setZoom(17);
-
-            marker.setPlace({
-                placeId: tempPlace.place_id,
-                location: tempPlace.geometry.location,
-            });
-
-            marker.setVisible(true);
         });
     }
 
@@ -119,7 +102,6 @@ export default function BusinessPage() {
             </div>
 
             <div className="bg-[#252525] rounded-lg p-6 max-w-3xl space-y-6">
-
                 <div>
                     <label className="block text-sm font-medium mb-2">Business Name</label>
                     <input type="text" className="w-full p-3 bg-[#333333] border border-gray-700 rounded-md" placeholder="Enter your business name" />
@@ -128,13 +110,13 @@ export default function BusinessPage() {
                 <div>
                     <label className="block text-sm font-medium mb-2">Google Review Link</label>
                     <div className="flex">
-                    <input
-                          type="text"
-                          className="flex-1 p-3 bg-[#333333] border border-gray-700 rounded-l-md"
-                          placeholder="Paste your Google review link"
-                          value={reviewLink}
-                          onChange={(e) => setReviewLink(e.target.value)}
-                      />
+                        <input
+                            type="text"
+                            className="flex-1 p-3 bg-[#333333] border border-gray-700 rounded-l-md"
+                            placeholder="Paste your Google review link"
+                            value={reviewLink}
+                            onChange={(e) => setReviewLink(e.target.value)}
+                        />
                         <button className="bg-[#333333] border border-l-0 border-gray-700 rounded-r-md px-4 flex items-center">
                             <Link className="h-5 w-5 text-gray-400" />
                         </button>
@@ -142,12 +124,11 @@ export default function BusinessPage() {
                     <p className="text-xs text-gray-400 mt-2">Or find your Google Place ID below</p>
                 </div>
 
-                {/* Place ID Finder */}
                 <div className="space-y-4">
                     <input ref={inputRef} className="controls p-3 w-full bg-[#333333] border border-gray-700 rounded-md" type="text" placeholder="Search your business to get Place ID" />
                     <div ref={mapRef} className="h-64 rounded-md" />
                     <div className="text-sm text-gray-400 space-y-1">
-                      {place ? (
+                        {place ? (
                             <>
                                 <div><strong>Place Name:</strong> {place.name}</div>
                                 <div><strong>Place ID:</strong> {place.place_id}</div>
@@ -165,9 +146,7 @@ export default function BusinessPage() {
                         ) : (
                             <p className="text-gray-500">No place selected yet.</p>
                         )}
-
                     </div>
-
                 </div>
 
                 <div className="pt-4 border-t border-gray-700">
@@ -194,7 +173,6 @@ export default function BusinessPage() {
                         Save Changes
                     </button>
                 </div>
-
             </div>
         </>
     );
