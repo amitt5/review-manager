@@ -26,15 +26,16 @@ declare global {
 export default function BusinessPage() {
     const [place, setPlace] = useState<any>(null);
     const [reviewLink, setReviewLink] = useState("");
+    const [isLinkValid, setIsLinkValid] = useState(false); // To track if link is valid
 
     const mapRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
     const scriptRef = useRef<HTMLScriptElement | null>(null);
 
-    // Loading Google Maps API dynamically only once
+    // Load Google Maps API dynamically
     useEffect(() => {
         if (document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]')) return;
-        
+
         const script = document.createElement("script");
         const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
         script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initMap`;
@@ -48,22 +49,28 @@ export default function BusinessPage() {
                 document.head.removeChild(scriptRef.current);
                 scriptRef.current = null;
             }
-            delete (window as any).initMap;
+            delete window.initMap;
         }
     }, []);
 
-    // Handling the place selection
+    // Handle place selection
     function handlePlaceSelected(newPlace: any) {
         setPlace(newPlace);
     }
 
-    // Generate the review link when the business is confirmed
+    // Handle confirmation and generate review link
     function handleConfirm() {
         const link = `https://search.google.com/local/writereview?placeid=${place.place_id}`;
         setReviewLink(link);
+        setIsLinkValid(true); // Enable the test link button
     }
 
-    // Initializing the Google Map with Autocomplete
+    // Open the review link in a new window
+    function handleTestLink() {
+        window.open(reviewLink, "_blank");
+    }
+
+    // Initialize the Google map and autocomplete
     function initMap() {
         if (!mapRef.current || !inputRef.current) return;
 
@@ -81,7 +88,6 @@ export default function BusinessPage() {
 
         const marker = new window.google.maps.Marker({ map });
 
-        // Listening for place change and setting map details
         autocomplete.addListener("place_changed", () => {
             const tempPlace = autocomplete.getPlace();
             if (tempPlace && tempPlace.geometry?.location) {
@@ -121,9 +127,23 @@ export default function BusinessPage() {
                             <Link className="h-5 w-5 text-gray-400" />
                         </button>
                     </div>
-                    <p className="text-xs text-gray-400 mt-2">Or find your Google Place ID below</p>
+
+                     {/* Test the link button */}
+                      {isLinkValid && (
+                          <div className="mt-4">
+                              <button
+                                  onClick={handleTestLink}
+                                  className="w-full bg-green-500 hover:bg-green-600 transition-colors text-black font-medium px-4 py-2 rounded-md"
+                              >
+                                  Test the Link
+                              </button>
+                          </div>
+                      )}
+
+                    <p className="text-xs text-gray-400 mt-2">Or find your Google business below</p>
                 </div>
 
+                {/* Place ID Finder */}
                 <div className="space-y-4">
                     <input ref={inputRef} className="controls p-3 w-full bg-[#333333] border border-gray-700 rounded-md" type="text" placeholder="Search your business to get Place ID" />
                     <div ref={mapRef} className="h-64 rounded-md" />
@@ -149,7 +169,7 @@ export default function BusinessPage() {
                     </div>
                 </div>
 
-                <div className="pt-4 border-t border-gray-700">
+                {/* <div className="pt-4 border-t border-gray-700">
                     <h3 className="text-lg font-medium mb-4">Review Page Preview</h3>
                     <div className="bg-[#333333] rounded-lg p-6 text-center">
                         <div className="mb-4">
@@ -166,7 +186,7 @@ export default function BusinessPage() {
                             <p className="text-sm text-gray-400">Review page preview</p>
                         </div>
                     </div>
-                </div>
+                </div> */}
 
                 <div className="flex justify-end pt-4">
                     <button className="bg-yellow-500 hover:bg-yellow-600 transition-colors text-black font-medium px-6 py-2 rounded-md">
