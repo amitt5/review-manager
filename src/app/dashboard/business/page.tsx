@@ -49,7 +49,7 @@ export default function BusinessPage() {
                 document.head.removeChild(scriptRef.current);
                 scriptRef.current = null;
             }
-            delete window.initMap;
+            delete (window as any).initMap;
         }
     }, []);
 
