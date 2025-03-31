@@ -48,18 +48,23 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
     try {
-      const { review_id, feedback } = await request.json();
-  
-      if (!review_id || !feedback) {
+      const { review_id, name, email, phone, feedback } = await request.json();
+
+      if (!review_id) {
         return NextResponse.json(
-          { error: 'Review ID and feedback are required' },
+          { error: 'Review ID is required' },
           { status: 400 }
         );
       }
   
       const { data, error } = await supabaseAdmin
         .from('reviews')
-        .update({ feedback }) // Only updating feedback
+        .update({
+            name,
+            email,
+            phone,
+            feedback, // Updating the feedback field
+        })
         .eq('id', review_id)
         .select()
         .single();

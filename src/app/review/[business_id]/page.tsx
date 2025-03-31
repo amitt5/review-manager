@@ -111,7 +111,7 @@ export default function ReviewPage() {
         // In a real app, you would submit this data to your backend
         console.log("Submitting feedback:", { rating, ...formData })
         if (reviewId) {
-            addFeedback(reviewId, formData.review);
+            addFeedback(reviewId);
         }
         alert("Thank you for your feedback!")
         // Reset the form
@@ -119,7 +119,7 @@ export default function ReviewPage() {
         setRating(null)
     }
 
-    async function addFeedback(review_id: string, feedback: string) {
+    async function addFeedback(review_id: string) {
         try {
             const response = await fetch('/api/reviews', {
                 method: 'PATCH',
@@ -128,7 +128,10 @@ export default function ReviewPage() {
                 },
                 body: JSON.stringify({
                     review_id: review_id,
-                    feedback: feedback,
+                    name: formData.name,
+                    email: formData.email,
+                    phone: formData.phone,
+                    feedback: formData.review, 
                 }),
             });
 
