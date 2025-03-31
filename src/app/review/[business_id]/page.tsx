@@ -8,6 +8,8 @@ import { useParams } from "next/navigation";
 
 export default function ReviewPage() {
   const [rating, setRating] = useState<number | null>(null)
+  const [reviewId, setReviewId] = useState<string | null>(null);
+
   const [hoveredRating, setHoveredRating] = useState<number | null>(null)
 
   const params = useParams(); // Use useParams() to get the business_id
@@ -57,19 +59,10 @@ export default function ReviewPage() {
     setRating(selectedRating)
     console.log('selectedRating', selectedRating);
     addRating(selectedRating);
-    // const response = await fetch(`/api/reviews?business_id=${businessId}&rating=${selectedRating}`, {
-    //   method: 'POST',
-    //   headers: {
-    //     'Content-Type': 'application/json',
-    //   },
-    // });
-    
   }
 
   async function addRating(rating: number) {
     try {
-       
-
         const response = await fetch('/api/reviews', {
             method: 'POST',
             headers: {
@@ -80,14 +73,15 @@ export default function ReviewPage() {
                 rating: rating,
             }),
         });
-
-        console.log('response123', response);
+        const data = await response.json(); // Convert response to JSON
+        console.log('response data123:', data); // Log the actual response content
 
         if (!response.ok) {
             const error = await response.json();
             throw new Error(error.message || 'Failed to save business details');
         } else {
-            alert('Business details saved successfully!');
+            setReviewId(data.id);
+            console.log('Review submitted successfully!');
         }   
     } catch (error) {
         console.error('Error saving rating:', error);

@@ -35,7 +35,7 @@ export async function POST(request: Request) {
       .single();
 
     if (error) throw error;
-
+    console.log('data123', data);
     return NextResponse.json(data);
   } catch (error) {
     console.error('Error creating business:', error);
