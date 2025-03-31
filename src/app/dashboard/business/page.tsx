@@ -58,6 +58,31 @@ export default function BusinessPage() {
         }
     }, []);
 
+    async function handleDeleteBusiness(id: number) {
+        try {
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            
+            if (sessionError || !session) {
+                alert('Please sign in to delete business details');
+                return;
+            }
+
+            const response = await fetch('/api/businesses', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`,
+                },
+                body: JSON.stringify({ id }),
+            });
+
+            if (!response.ok) {
+            }
+        }catch (error) {
+            console.error('Error saving business:', error);
+            alert('Failed to save business details. Please try again.');
+        }
+    }
     // Handle place selection
     function handlePlaceSelected(newPlace: any) {
         setPlace(newPlace);
@@ -312,7 +337,7 @@ export default function BusinessPage() {
                     </tr>
                     </thead>
                     <tbody>
-                    {businesses.map((business: any) => (
+                    {businesses?.map((business: any) => (
                         <tr key={business.id} className="border-b border-gray-700 hover:bg-[#2a2a2a]">
                         <td className="py-4 px-4">{business.business_name}</td>
                         <td className="py-4 px-4">
@@ -339,6 +364,7 @@ export default function BusinessPage() {
                             <button
                             className="p-2 text-gray-400 hover:text-red-500 rounded-md hover:bg-[#333333]"
                             aria-label={`Delete ${business.business_name}`}
+                            onClick={() => handleDeleteBusiness(business.id)}
                             >
                             <Trash2 className="h-5 w-5" />
                             </button>

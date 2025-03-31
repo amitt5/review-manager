@@ -101,5 +101,26 @@ export async function GET(request: Request) {
         { status: 500 }
       );
     }
-  } 
+} 
+
+export async function DELETE(request: Request) {
+    try {
+        const { id } = await request.json();
+        const { data, error } = await supabaseAdmin
+        .from('businesses')
+        .delete()
+        .eq('id', id);
+
+        if (error) throw error;
+
+        return NextResponse.json(data);
+        
+    } catch (error) {
+        console.error('Error deleting business:', error);
+        return NextResponse.json(
+            { error: 'Failed to delete business' },
+            { status: 500 }
+        );
+    }
+}
 
