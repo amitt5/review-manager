@@ -2,6 +2,7 @@
 
 import { Link, Star } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
+import { supabase } from "@/lib/supabase"
 
 // Type declarations for Google Maps API
 declare global {
@@ -26,6 +27,7 @@ declare global {
 export default function BusinessPage() {
     const [place, setPlace] = useState<any>(null);
     const [reviewLink, setReviewLink] = useState("");
+    const [businessName, setBusinessName] = useState("");
     const [isLinkValid, setIsLinkValid] = useState(false); // To track if link is valid
 
     const mapRef = useRef<HTMLDivElement>(null);
@@ -62,7 +64,61 @@ export default function BusinessPage() {
     function handleConfirm() {
         const link = `https://search.google.com/local/writereview?placeid=${place.place_id}`;
         setReviewLink(link);
+        if (businessName === '' || businessName === null) {
+            setBusinessName(place.name);
+        }
         setIsLinkValid(true); // Enable the test link button
+    }
+
+    // Handle confirmation and generate review link
+    async function handleConfirmBusiness() {
+        try {
+            if (!place?.place_id) {
+                alert('Please select a business from the search results');
+                return;
+            }
+
+            if (!businessName.trim()) {
+                alert('Please enter a business name');
+                return;
+            }
+
+            // Get the current session
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            
+            if (sessionError || !session) {
+                alert('Please sign in to save business details');
+                return;
+            }
+
+            const response = await fetch('/api/businesses', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`,
+                },
+                body: JSON.stringify({
+                    business_name: businessName.trim(),
+                    google_place_id: place.place_id,
+                }),
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to save business details');
+            }
+
+            const data = await response.json();
+            alert('Business details saved successfully!');
+            
+            // Generate review link
+            const link = `https://search.google.com/local/writereview?placeid=${place.place_id}`;
+            setReviewLink(link);
+            setIsLinkValid(true);
+        } catch (error) {
+            console.error('Error saving business:', error);
+            alert('Failed to save business details. Please try again.');
+        }
     }
 
     // Open the review link in a new window
@@ -110,7 +166,7 @@ export default function BusinessPage() {
             <div className="bg-[#252525] rounded-lg p-6 max-w-3xl space-y-6">
                 <div>
                     <label className="block text-sm font-medium mb-2">Business Name</label>
-                    <input type="text" className="w-full p-3 bg-[#333333] border border-gray-700 rounded-md" placeholder="Enter your business name" />
+                    <input type="text" className="w-full p-3 bg-[#333333] border border-gray-700 rounded-md" placeholder="Enter your business name" value={businessName} onChange={(e) => setBusinessName(e.target.value)} />
                 </div>
 
                 <div>
@@ -189,7 +245,8 @@ export default function BusinessPage() {
                 </div> */}
 
                 <div className="flex justify-end pt-4">
-                    <button className="bg-yellow-500 hover:bg-yellow-600 transition-colors text-black font-medium px-6 py-2 rounded-md">
+                    <button className="bg-yellow-500 hover:bg-yellow-600 transition-colors text-black font-medium px-6 py-2 rounded-md"
+                    onClick={handleConfirmBusiness}>
                         Save Changes
                     </button>
                 </div>
