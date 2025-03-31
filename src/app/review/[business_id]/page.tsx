@@ -4,11 +4,14 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { Star } from "lucide-react"
+import { supabase } from "@/lib/supabase"
 
 export default function ReviewPage({ params }: { params: { business_id: string } }) {
   const [rating, setRating] = useState<number | null>(null)
   const [hoveredRating, setHoveredRating] = useState<number | null>(null)
   const [businessName, setBusinessName] = useState("Amsterdam")
+  const [business_id, setbusiness_id] = useState("")
+  const [business, setBusiness] = useState<any>(null)
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,8 +27,35 @@ export default function ReviewPage({ params }: { params: { business_id: string }
     // })
 
     // For demo purposes, we're just using a static business name
-    console.log(`Business ID: ${params.business_id}`)
+    console.log(`Business ID111: ${params.business_id}`)
+    getBusiness(params.business_id);
   }, [params.business_id])
+
+  async function getBusiness(businessId: string) {
+    try {
+        setbusiness_id(businessId);
+
+        const response = await fetch(`/api/businesses?business_id=${businessId}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to get business details');
+        }
+
+        const data = await response.json();
+        setBusiness(data);
+        console.log('businessdata111', data, business);
+       
+    } catch (error) {
+        console.error('Error fetching business:', error);
+        // alert('Failed to save business details. Please try again.');
+    }
+}
 
   const handleRatingClick = (selectedRating: number) => {
     setRating(selectedRating)
@@ -74,7 +104,7 @@ export default function ReviewPage({ params }: { params: { business_id: string }
       return (
         <div className="flex flex-col items-center">
           <h1 className="text-3xl font-medium text-gray-800 mt-8 mb-2 text-center">How was your experience</h1>
-          <h2 className="text-3xl font-medium text-gray-800 mb-10 text-center">with {businessName}?</h2>
+          <h2 className="text-3xl font-medium text-gray-800 mb-10 text-center">with {business.business_name}?</h2>
 
           <div className="flex space-x-4 mb-16">
             {[1, 2, 3, 4, 5].map((star) => (

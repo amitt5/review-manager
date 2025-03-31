@@ -68,6 +68,22 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
     try {
+    
+        const { searchParams } = new URL(request.url);
+        const business_id = searchParams.get("business_id");
+
+        if (business_id) {
+        // Fetch a single business without authentication
+            const { data: business, error } = await supabaseAdmin
+                .from("businesses")
+                .select("*")
+                .eq("id", business_id)
+                .single();
+
+            if (error) throw error;
+            return NextResponse.json(business);
+        }
+
       // Get the authorization header from the request
       const authHeader = request.headers.get('Authorization');
       if (!authHeader) {
@@ -95,9 +111,9 @@ export async function GET(request: Request) {
       return NextResponse.json(businesses);
 
     } catch (error) {
-      console.error('Error creating business:', error);
+      console.error('Error fetching business:', error);
       return NextResponse.json(
-        { error: 'Failed to create business' },
+        { error: 'Failed to fetch business' },
         { status: 500 }
       );
     }
