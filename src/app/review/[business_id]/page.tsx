@@ -4,13 +4,14 @@ import type React from "react"
 
 import { useState, useEffect } from "react"
 import { Star } from "lucide-react"
-import { supabase } from "@/lib/supabase"
+import { useParams } from "next/navigation";
 
-export default function ReviewPage({ params }: { params: { business_id: string } }) {
+export default function ReviewPage() {
   const [rating, setRating] = useState<number | null>(null)
   const [hoveredRating, setHoveredRating] = useState<number | null>(null)
-  const [businessName, setBusinessName] = useState("Amsterdam")
-  const [business_id, setbusiness_id] = useState("")
+
+  const params = useParams(); // Use useParams() to get the business_id
+  const businessId = params.business_id as string;
   const [business, setBusiness] = useState<any>(null)
   const [formData, setFormData] = useState({
     name: "",
@@ -20,21 +21,16 @@ export default function ReviewPage({ params }: { params: { business_id: string }
   })
 
   // In a real app, you would fetch the business details based on the business_id
+ 
   useEffect(() => {
-    // This would be an API call in a real application
-    // fetchBusinessDetails(params.business_id).then(data => {
-    //   setBusinessName(data.name)
-    // })
+    console.log(`Business ID: ${businessId}`);
+    if (businessId) {
+      getBusiness();
+    }
+  }, [businessId]);
 
-    // For demo purposes, we're just using a static business name
-    console.log(`Business ID111: ${params.business_id}`)
-    getBusiness(params.business_id);
-  }, [params.business_id])
-
-  async function getBusiness(businessId: string) {
+  async function getBusiness() {
     try {
-        setbusiness_id(businessId);
-
         const response = await fetch(`/api/businesses?business_id=${businessId}`, {
             method: 'GET',
             headers: {
@@ -59,7 +55,46 @@ export default function ReviewPage({ params }: { params: { business_id: string }
 
   const handleRatingClick = (selectedRating: number) => {
     setRating(selectedRating)
+    console.log('selectedRating', selectedRating);
+    addRating(selectedRating);
+    // const response = await fetch(`/api/reviews?business_id=${businessId}&rating=${selectedRating}`, {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    // });
+    
   }
+
+  async function addRating(rating: number) {
+    try {
+       
+
+        const response = await fetch('/api/reviews', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                business_id: businessId,
+                rating: rating,
+            }),
+        });
+
+        console.log('response123', response);
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.message || 'Failed to save business details');
+        } else {
+            alert('Business details saved successfully!');
+        }   
+    } catch (error) {
+        console.error('Error saving rating:', error);
+    }
+}
+
+
 
   const handleMouseEnter = (star: number) => {
     setHoveredRating(star)
@@ -88,14 +123,10 @@ export default function ReviewPage({ params }: { params: { business_id: string }
   }
 
   const handleGoogleReview = () => {
-    // In a real app, this would redirect to the Google review page for the business
-    window.open("https://google.com", "_blank")
+    const link = `https://search.google.com/local/writereview?placeid=${business.google_place_id}`;
+    window.open(link, "_blank");
   }
 
-  const handleVideoTestimonial = () => {
-    // In a real app, this would open a video recording interface
-    alert("Video testimonial feature would open here")
-  }
 
   // Determine which view to show based on the rating
   const renderContent = () => {
@@ -104,7 +135,7 @@ export default function ReviewPage({ params }: { params: { business_id: string }
       return (
         <div className="flex flex-col items-center">
           <h1 className="text-3xl font-medium text-gray-800 mt-8 mb-2 text-center">How was your experience</h1>
-          <h2 className="text-3xl font-medium text-gray-800 mb-10 text-center">with {business.business_name}?</h2>
+          <h2 className="text-3xl font-medium text-gray-800 mb-10 text-center">with {business?.business_name}?</h2>
 
           <div className="flex space-x-4 mb-16">
             {[1, 2, 3, 4, 5].map((star) => (
