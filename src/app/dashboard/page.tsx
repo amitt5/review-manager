@@ -66,68 +66,6 @@ export default function Dashboard() {
 }
 
 
-
-function DashboardSidebar() {
-    return (
-      <Sidebar className="border-r border-gray-800">
-        <SidebarHeader className="p-4 border-b border-gray-800">
-          <div className="flex items-center gap-2">
-            <Zap className="h-6 w-6 text-yellow-500" />
-            <span className="text-xl font-bold">ReviewBoost</span>
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild isActive>
-                <Link href="/dashboard">
-                  <Home className="h-5 w-5" />
-                  <span>Dashboard</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link href="/dashboard/business">
-                  <Star className="h-5 w-5" />
-                  <span>Business</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link href="/dashboard/analytics">
-                  <BarChart3 className="h-5 w-5" />
-                  <span>Analytics</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton asChild>
-                <Link href="/dashboard/settings">
-                  <Settings className="h-5 w-5" />
-                  <span>Settings</span>
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarContent>
-        <SidebarFooter className="p-4 border-t border-gray-800">
-          <div className="flex items-center gap-3">
-            <div className="h-8 w-8 rounded-full bg-gray-700 flex items-center justify-center">
-              <span className="text-sm font-medium">JD</span>
-            </div>
-            <div>
-              <p className="text-sm font-medium">John Doe</p>
-              <p className="text-xs text-gray-400">john@example.com</p>
-            </div>
-          </div>
-        </SidebarFooter>
-      </Sidebar>
-    )
-  }
-
-
   function DashboardCard({ title, value, icon }: { title: string, value: string, icon: React.ReactNode }) {
     return (
       <div className="bg-[#252525] rounded-lg p-6">

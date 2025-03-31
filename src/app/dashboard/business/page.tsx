@@ -77,6 +77,12 @@ export default function BusinessPage() {
             });
 
             if (!response.ok) {
+                const error = await response.json();
+                console.error('Error deleting business:', error);
+                alert('Failed to delete business. Please try again.');
+            } else {
+                alert('Business deleted successfully!');
+                getBusinesses();
             }
         }catch (error) {
             console.error('Error saving business:', error);
@@ -99,7 +105,7 @@ export default function BusinessPage() {
     }
 
     // Handle confirmation and generate review link
-    async function handleConfirmBusiness() {
+    async function handleAddBusiness() {
         try {
             if (!place?.place_id) {
                 alert('Please select a business from the search results');
@@ -134,15 +140,18 @@ export default function BusinessPage() {
             if (!response.ok) {
                 const error = await response.json();
                 throw new Error(error.message || 'Failed to save business details');
-            }
+            } else {
+                alert('Business details saved successfully!');
+                getBusinesses();
+            }   
 
-            const data = await response.json();
-            alert('Business details saved successfully!');
+            // const data = await response.json();
+            // alert('Business details saved successfully!');
             
             // Generate review link
-            const link = `https://search.google.com/local/writereview?placeid=${place.place_id}`;
-            setReviewLink(link);
-            setIsLinkValid(true);
+            // const link = `https://search.google.com/local/writereview?placeid=${place.place_id}`;
+            // setReviewLink(link);
+            // setIsLinkValid(true);
         } catch (error) {
             console.error('Error saving business:', error);
             alert('Failed to save business details. Please try again.');
@@ -179,12 +188,7 @@ export default function BusinessPage() {
             const data = await response.json();
             setBusinesses(data);
             console.log('businesses111', data, businesses);
-            // alert('Business details saved successfully!');
-            
-            // Generate review link
-            // const link = `https://search.google.com/local/writereview?placeid=${place.place_id}`;
-            // setReviewLink(link);
-            // setIsLinkValid(true);
+           
         } catch (error) {
             console.error('Error fetching business:', error);
             // alert('Failed to save business details. Please try again.');
@@ -192,9 +196,11 @@ export default function BusinessPage() {
     }
 
     // Open the review link in a new window
-    function handleTestLink() {
-        window.open(reviewLink, "_blank");
+    function openReviewLink(link: string) {
+        window.open(link, "_blank");
     }
+
+    
 
     // Initialize the Google map and autocomplete
     function initMap() {
@@ -258,7 +264,7 @@ export default function BusinessPage() {
                       {isLinkValid && (
                           <div className="mt-4">
                               <button
-                                  onClick={handleTestLink}
+                                  onClick={() => openReviewLink(reviewLink)}
                                   className="w-full bg-green-500 hover:bg-green-600 transition-colors text-black font-medium px-4 py-2 rounded-md"
                               >
                                   Test the Link
@@ -316,8 +322,8 @@ export default function BusinessPage() {
 
                 <div className="flex justify-end pt-4">
                     <button className="bg-yellow-500 hover:bg-yellow-600 transition-colors text-black font-medium px-6 py-2 rounded-md"
-                    onClick={handleConfirmBusiness}>
-                        Save Changes
+                    onClick={handleAddBusiness}>
+                        Add Business
                     </button>
                 </div>
             </div>
@@ -344,10 +350,10 @@ export default function BusinessPage() {
                             <a
                             href="#"
                             className="flex items-center gap-1 text-blue-400 hover:text-blue-300"
-                            onClick={(e) => e.preventDefault()}
+                            onClick={() => openReviewLink(`https://search.google.com/local/writereview?placeid=${business.google_place_id}`)}
                             >
                             <ExternalLink className="h-4 w-4" />
-                            <span className="truncate max-w-[150px]">{business.google_place_id}</span>
+                            <span className="truncate max-w-[150px]">Click me</span>
                             </a>
                         </td>
                         <td className="py-4 px-4">
