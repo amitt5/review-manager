@@ -65,3 +65,41 @@ export async function POST(request: Request) {
     );
   }
 } 
+
+export async function GET(request: Request) {
+    try {
+      // Get the authorization header from the request
+      const authHeader = request.headers.get('Authorization');
+      if (!authHeader) {
+        return NextResponse.json({ error: 'No authorization header' }, { status: 401 });
+      }
+  
+      // Extract the token from the header
+      const token = authHeader.replace('Bearer ', '');
+      
+      // Verify the token and get the user
+      const { data: { user }, error: userError } = await supabaseAdmin.auth.getUser(token);
+      
+      if (userError || !user) {
+        console.error('Auth error:', userError);
+        return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+      }
+  
+      const { data: businesses, error: businessesError } = await supabaseAdmin
+      .from('businesses')
+      .select('*')
+      .eq('user_id', user.id);
+
+        if (businessesError) throw businessesError;
+        console.log('businesses112', businesses);
+      return NextResponse.json(businesses);
+
+    } catch (error) {
+      console.error('Error creating business:', error);
+      return NextResponse.json(
+        { error: 'Failed to create business' },
+        { status: 500 }
+      );
+    }
+  } 
+

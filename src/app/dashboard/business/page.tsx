@@ -36,6 +36,7 @@ export default function BusinessPage() {
 
     // Load Google Maps API dynamically
     useEffect(() => {
+        getBusinesses();
         if (document.querySelector('script[src*="maps.googleapis.com/maps/api/js"]')) return;
 
         const script = document.createElement("script");
@@ -118,6 +119,47 @@ export default function BusinessPage() {
         } catch (error) {
             console.error('Error saving business:', error);
             alert('Failed to save business details. Please try again.');
+        }
+    }
+
+    async function getBusinesses() {
+        try {
+
+            
+            // Get the current session
+            const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+            
+            if (sessionError || !session) {
+                alert('Please sign in to get your business details');
+                return;
+            }
+
+            console.log('session111', session);
+
+            const response = await fetch('/api/businesses', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`,
+                },
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Failed to get business details');
+            }
+
+            const data = await response.json();
+            console.log('businesses111', data);
+            // alert('Business details saved successfully!');
+            
+            // Generate review link
+            // const link = `https://search.google.com/local/writereview?placeid=${place.place_id}`;
+            // setReviewLink(link);
+            // setIsLinkValid(true);
+        } catch (error) {
+            console.error('Error fetching business:', error);
+            // alert('Failed to save business details. Please try again.');
         }
     }
 
