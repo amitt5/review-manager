@@ -48,7 +48,9 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
     try {
-      const { review_id, name, email, phone, feedback } = await request.json();
+      const { review_id, name, email, phone, feedback, google_clicked } = await request.json();
+
+    //   const { review_id, name, email, phone, feedback } = await request.json();
 
       if (!review_id) {
         return NextResponse.json(
@@ -56,15 +58,28 @@ export async function PATCH(request: Request) {
           { status: 400 }
         );
       }
+
+      // Prepare the update object, which will be updated based on the request data
+        const updateData: { [key: string]: any } = {};
+
+        // Add fields to update if they exist
+        if (name) updateData.name = name;
+        if (email) updateData.email = email;
+        if (phone) updateData.phone = phone;
+        if (feedback) updateData.feedback = feedback;
+        if (google_clicked !== undefined) updateData.google_clicked = google_clicked; // Only if google_clicked is provided
+
+        if (Object.keys(updateData).length === 0) {
+        return NextResponse.json(
+            { error: 'No valid fields provided for update' },
+            { status: 400 }
+        );
+        }
+
   
       const { data, error } = await supabaseAdmin
         .from('reviews')
-        .update({
-            name,
-            email,
-            phone,
-            feedback, // Updating the feedback field
-        })
+        .update(updateData)
         .eq('id', review_id)
         .select()
         .single();

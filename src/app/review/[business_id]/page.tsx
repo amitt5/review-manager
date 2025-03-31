@@ -142,7 +142,28 @@ export default function ReviewPage() {
         }
     }
 
+    async function updateGoogleClicked() {
+        try {
+            const response = await fetch('/api/reviews', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    review_id: reviewId,
+                    google_clicked: true,
+                }),
+            });
+
+            const data = await response.json();
+            console.log('Updated review:', data);
+        } catch (error) {
+            console.error('Error updating review:', error);
+        }
+    }
+
   const handleGoogleReview = () => {
+    updateGoogleClicked();
     const link = `https://search.google.com/local/writereview?placeid=${business.google_place_id}`;
     window.open(link, "_blank");
   }
