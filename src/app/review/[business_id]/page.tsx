@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { Star } from "lucide-react"
 
-export default function ReviewPage({ params }: { params: { businessId: string } }) {
+export default function ReviewPage({ params }: { params: { business_id: string } }) {
   const [rating, setRating] = useState<number | null>(null)
   const [hoveredRating, setHoveredRating] = useState<number | null>(null)
   const [businessName, setBusinessName] = useState("Amsterdam")
@@ -16,16 +16,16 @@ export default function ReviewPage({ params }: { params: { businessId: string } 
     review: "",
   })
 
-  // In a real app, you would fetch the business details based on the businessId
+  // In a real app, you would fetch the business details based on the business_id
   useEffect(() => {
     // This would be an API call in a real application
-    // fetchBusinessDetails(params.businessId).then(data => {
+    // fetchBusinessDetails(params.business_id).then(data => {
     //   setBusinessName(data.name)
     // })
 
     // For demo purposes, we're just using a static business name
-    console.log(`Business ID: ${params.businessId}`)
-  }, [params.businessId])
+    console.log(`Business ID: ${params.business_id}`)
+  }, [params.business_id])
 
   const handleRatingClick = (selectedRating: number) => {
     setRating(selectedRating)
