@@ -1,6 +1,6 @@
 "use client"
 
-import { Link, Star } from "lucide-react"
+import { ExternalLink, Link, Star, Trash2 } from "lucide-react"
 import { useEffect, useRef, useState } from "react"
 import { supabase } from "@/lib/supabase"
 
@@ -25,9 +25,11 @@ declare global {
 }
 
 export default function BusinessPage() {
+
     const [place, setPlace] = useState<any>(null);
     const [reviewLink, setReviewLink] = useState("");
     const [businessName, setBusinessName] = useState("");
+    const [businesses, setBusinesses] = useState<any>(null);
     const [isLinkValid, setIsLinkValid] = useState(false); // To track if link is valid
 
     const mapRef = useRef<HTMLDivElement>(null);
@@ -150,7 +152,8 @@ export default function BusinessPage() {
             }
 
             const data = await response.json();
-            console.log('businesses111', data);
+            setBusinesses(data);
+            console.log('businesses111', data, businesses);
             // alert('Business details saved successfully!');
             
             // Generate review link
@@ -205,7 +208,7 @@ export default function BusinessPage() {
                 <p className="text-gray-400 mt-2">Configure your business details and review link</p>
             </div>
 
-            <div className="bg-[#252525] rounded-lg p-6 max-w-3xl space-y-6">
+            <div className="bg-[#252525] rounded-lg p-6 max-w-3xl space-y-6 mb-8">
                 <div>
                     <label className="block text-sm font-medium mb-2">Business Name</label>
                     <input type="text" className="w-full p-3 bg-[#333333] border border-gray-700 rounded-md" placeholder="Enter your business name" value={businessName} onChange={(e) => setBusinessName(e.target.value)} />
@@ -292,6 +295,65 @@ export default function BusinessPage() {
                         Save Changes
                     </button>
                 </div>
+            </div>
+
+              {/* Businesses Table */}
+            <div className="bg-[#252525] rounded-lg p-6">
+                <h2 className="text-xl font-semibold mb-6">Your Businesses</h2>
+
+                <div className="overflow-x-auto">
+                <table className="w-full">
+                    <thead>
+                    <tr className="border-b border-gray-700">
+                        <th className="text-left py-3 px-4 font-medium text-gray-400">Business Name</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-400">Google Review Link</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-400">App Link</th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-400">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {businesses.map((business: any) => (
+                        <tr key={business.id} className="border-b border-gray-700 hover:bg-[#2a2a2a]">
+                        <td className="py-4 px-4">{business.business_name}</td>
+                        <td className="py-4 px-4">
+                            <a
+                            href="#"
+                            className="flex items-center gap-1 text-blue-400 hover:text-blue-300"
+                            onClick={(e) => e.preventDefault()}
+                            >
+                            <ExternalLink className="h-4 w-4" />
+                            <span className="truncate max-w-[150px]">{business.google_place_id}</span>
+                            </a>
+                        </td>
+                        <td className="py-4 px-4">
+                            <a
+                            href="#"
+                            className="flex items-center gap-1 text-yellow-500 hover:text-yellow-400"
+                            onClick={(e) => e.preventDefault()}
+                            >
+                            <ExternalLink className="h-4 w-4" />
+                            <span className="truncate max-w-[150px]">{business.google_place_id}</span>
+                            </a>
+                        </td>
+                        <td className="py-4 px-4 text-right">
+                            <button
+                            className="p-2 text-gray-400 hover:text-red-500 rounded-md hover:bg-[#333333]"
+                            aria-label={`Delete ${business.business_name}`}
+                            >
+                            <Trash2 className="h-5 w-5" />
+                            </button>
+                        </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+                </div>
+
+                {(!businesses || businesses.length === 0) && (
+                <div className="text-center py-8 text-gray-400">
+                    <p>You haven't added any businesses yet.</p>
+                </div>
+                )}
             </div>
         </>
     );
