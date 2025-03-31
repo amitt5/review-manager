@@ -106,15 +106,38 @@ export default function ReviewPage() {
     }))
   }
 
-  const handleSubmitFeedback = (e: React.FormEvent) => {
-    e.preventDefault()
-    // In a real app, you would submit this data to your backend
-    console.log("Submitting feedback:", { rating, ...formData })
-    alert("Thank you for your feedback!")
-    // Reset the form
-    setFormData({ name: "", email: "", phone: "", review: "" })
-    setRating(null)
-  }
+    const handleSubmitFeedback = (e: React.FormEvent) => {
+        e.preventDefault()
+        // In a real app, you would submit this data to your backend
+        console.log("Submitting feedback:", { rating, ...formData })
+        if (reviewId) {
+            addFeedback(reviewId, formData.review);
+        }
+        alert("Thank you for your feedback!")
+        // Reset the form
+        setFormData({ name: "", email: "", phone: "", review: "" })
+        setRating(null)
+    }
+
+    async function addFeedback(review_id: string, feedback: string) {
+        try {
+            const response = await fetch('/api/reviews', {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    review_id: review_id,
+                    feedback: feedback,
+                }),
+            });
+
+            const data = await response.json();
+            console.log('Updated review:', data);
+        } catch (error) {
+            console.error('Error updating review:', error);
+        }
+    }
 
   const handleGoogleReview = () => {
     const link = `https://search.google.com/local/writereview?placeid=${business.google_place_id}`;

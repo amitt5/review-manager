@@ -44,5 +44,36 @@ export async function POST(request: Request) {
       { status: 500 }
     );
   }
-} 
+}
+
+export async function PATCH(request: Request) {
+    try {
+      const { review_id, feedback } = await request.json();
+  
+      if (!review_id || !feedback) {
+        return NextResponse.json(
+          { error: 'Review ID and feedback are required' },
+          { status: 400 }
+        );
+      }
+  
+      const { data, error } = await supabaseAdmin
+        .from('reviews')
+        .update({ feedback }) // Only updating feedback
+        .eq('id', review_id)
+        .select()
+        .single();
+  
+      if (error) throw error;
+  
+      return NextResponse.json(data);
+    } catch (error) {
+      console.error('Error updating review:', error);
+      return NextResponse.json(
+        { error: 'Failed to update review' },
+        { status: 500 }
+      );
+    }
+  }
+  
 
