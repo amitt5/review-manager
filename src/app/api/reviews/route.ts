@@ -60,7 +60,7 @@ export async function PATCH(request: Request) {
       }
 
       // Prepare the update object, which will be updated based on the request data
-        const updateData: { [key: string]: any } = {};
+        const updateData: { [key: string]: string | number | boolean } = {};
 
         // Add fields to update if they exist
         if (name) updateData.name = name;
