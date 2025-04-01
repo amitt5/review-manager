@@ -15,9 +15,10 @@ const supabaseAdmin = createClient(
 
 export async function PUT(
   request: Request,
-  { params }: { params: { userId: string } }
+  context: { params: { userId: string } }
 ) {
   try {
+    const { userId } = context.params;
     const { currentRole } = await request.json();
     const newRole = currentRole === 'admin' ? 'user' : 'admin';
 
@@ -25,7 +26,7 @@ export async function PUT(
     const { data: existingRole } = await supabaseAdmin
       .from('user_roles')
       .select()
-      .eq('user_id', params.userId)
+      .eq('user_id', userId)
       .single();
 
     if (existingRole) {
@@ -33,12 +34,12 @@ export async function PUT(
       await supabaseAdmin
         .from('user_roles')
         .update({ role: newRole })
-        .eq('user_id', params.userId);
+        .eq('user_id', userId);
     } else {
       // Insert new role
       await supabaseAdmin
         .from('user_roles')
-        .insert({ user_id: params.userId, role: newRole });
+        .insert({ user_id: userId, role: newRole });
     }
 
     return NextResponse.json({ success: true });
