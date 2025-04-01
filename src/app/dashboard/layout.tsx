@@ -5,7 +5,11 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { BarChart3, Home, Menu, Settings, Star, X, Zap } from "lucide-react"
 
-export default function DashboardLayout({ children }) {
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
