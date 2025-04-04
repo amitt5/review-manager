@@ -3,8 +3,10 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { BarChart3, Home, Menu, Settings, Star, X, Zap } from "lucide-react"
+import { BarChart3, Home, LogOut, Menu, Settings, Star, X, Zap } from "lucide-react"
 
+import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 export default function DashboardLayout({
   children,
 }: {
@@ -13,6 +15,13 @@ export default function DashboardLayout({
   const pathname = usePathname()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push('/auth');
+  };
+
 
   // Check if we're on mobile
   useEffect(() => {
@@ -100,6 +109,13 @@ export default function DashboardLayout({
               label="Settings"
               isActive={pathname === "/dashboard/settings"}
             />
+            <NavLink
+              onClick={handleLogout}
+              href="/dashboard/settings"
+              icon={<LogOut className="h-5 w-5" />}
+              label="Log out"
+              isActive={pathname === "/dashboard/settings"}
+            />
           </nav>
         </div>
 
@@ -126,10 +142,17 @@ export default function DashboardLayout({
   )
 }
 
-function NavLink({ href, icon, label, isActive }: { href: string, icon: React.ReactNode, label: string, isActive: boolean }) {
+function NavLink({ href, icon, label, isActive, onClick }: { 
+  href: string, 
+  icon: React.ReactNode, 
+  label: string, 
+  isActive: boolean,
+  onClick?: () => void 
+}) {
   return (
     <Link
       href={href}
+      onClick={onClick}
       className={`flex items-center gap-2 p-2 rounded-md ${
         isActive ? "bg-[#252525]" : "hover:bg-[#252525]"
       } text-white`}
