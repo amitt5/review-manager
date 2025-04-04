@@ -6,8 +6,8 @@ import { AuthProvider } from "./components/AuthProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Task Manager",
-  description: "A simple task manager app",
+  title: "Review Manager",
+  description: "A Review manager app",
 };
 
 export default function RootLayout({
