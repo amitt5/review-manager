@@ -6,7 +6,8 @@ import { supabase } from '../../lib/supabase';
 export default function AuthComponent() {
   const redirectTo =
     typeof window !== 'undefined'
-      ? `${window.location.origin}/auth/callback`
+      ? `${window.location.origin}/auth`
+      // ? `${window.location.origin}/auth/callback`
       : undefined;
 
   return (
